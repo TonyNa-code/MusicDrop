@@ -59,8 +59,8 @@ for static_archive in "${static_archives[@]}"; do
 done
 
 cd "$source_dir"
-PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_prefix/lib/pkgconfig" \
-./configure \
+if ! PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_prefix/lib/pkgconfig" \
+  ./configure \
   --prefix="$output_dir" \
   --disable-debug \
   --disable-doc \
@@ -76,7 +76,11 @@ PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_pr
   --enable-libvorbis \
   --pkg-config-flags="--static" \
   --extra-cflags="-I$lame_prefix/include -I$ogg_prefix/include -I$vorbis_prefix/include" \
-  --extra-ldflags="-Wl,-search_paths_first -L$static_lib_dir"
+  --extra-ldflags="-Wl,-search_paths_first -L$static_lib_dir"; then
+  echo "FFmpeg configure failed; showing the diagnostic log tail." >&2
+  tail -n 250 ffbuild/config.log >&2 || true
+  exit 1
+fi
 
 make -j"$(sysctl -n hw.ncpu)"
 make install
