@@ -4,6 +4,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: Package version used for a non-release validation run
+        required: true
+        default: v3.1.0-preview.1-ci
 
 permissions:
   contents: write
@@ -19,15 +24,17 @@ jobs:
           - runner: macos-15
             rid: osx-arm64
     runs-on: ${{ matrix.runner }}
+    env:
+      PACKAGE_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: 10.0.301
       - name: Build pinned LGPL FFmpeg
         run: bash tools/build_ffmpeg_macos.sh "$RUNNER_TEMP/musicdrop-ffmpeg"
       - name: Build and package app
-        run: bash tools/package_macos.sh "${{ matrix.rid }}" "$RUNNER_TEMP/musicdrop-ffmpeg" "$RUNNER_TEMP/dist"
+        run: bash tools/package_macos.sh "${{ matrix.rid }}" "$RUNNER_TEMP/musicdrop-ffmpeg" "$RUNNER_TEMP/dist" "$PACKAGE_VERSION"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: MusicDrop-${{ matrix.rid }}

@@ -41,7 +41,7 @@ On a matching Mac:
 
 ```bash
 ./tools/build_ffmpeg_macos.sh "$TMPDIR/musicdrop-ffmpeg"
-./tools/package_macos.sh osx-arm64 "$TMPDIR/musicdrop-ffmpeg" "$PWD/dist"
+./tools/package_macos.sh osx-arm64 "$TMPDIR/musicdrop-ffmpeg" "$PWD/dist" v3.1.0-preview.1
 ```
 
 ## Signing and notarization boundary
