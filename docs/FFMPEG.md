@@ -20,10 +20,10 @@ The macOS release workflow does not copy an opaque third-party binary. It downlo
 The script:
 
 - disables GPL, nonfree, network access, documentation and FFplay;
-- enables static LAME and Vorbis dependencies with compatible licenses;
+- enables static LAME, mpg123 and Vorbis dependencies with compatible licenses;
 - rejects unexpected Homebrew dylib references;
 - verifies FLAC, PCM, MP3 and Vorbis encoders;
 - records `-version`, `-buildconf` and SHA-256 outputs;
-- copies FFmpeg, LAME, libogg and libvorbis license texts into the app bundle.
+- copies FFmpeg, LAME, mpg123, libogg and libvorbis license texts into the app bundle.
 
 See `tools/build_ffmpeg_macos.sh` and [macOS packaging](MACOS.md). A source-built LGPL configuration does not replace the need to comply with LGPL source/relinking obligations when distributing binaries.

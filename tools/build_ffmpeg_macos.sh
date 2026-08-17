@@ -35,36 +35,28 @@ source_dir="$(find "$work_dir" -mindepth 1 -maxdepth 1 -type d -name 'FFmpeg-*' 
 test -n "$source_dir"
 
 lame_prefix="$(brew --prefix lame)"
+mpg123_prefix="$(brew --prefix mpg123)"
 ogg_prefix="$(brew --prefix libogg)"
 vorbis_prefix="$(brew --prefix libvorbis)"
 
 # Homebrew installs both static archives and dylibs. FFmpeg's pkg-config checks
-# normally emit -l flags, which let Apple's linker prefer the dylibs even when
-# pkg-config is asked for static dependencies. Keep the verified Homebrew
-# headers, but rewrite the four external audio libraries to their exact .a
-# files so the resulting standalone executables remain portable.
-real_pkg_config="$(command -v pkg-config)"
-static_pkg_config="$work_dir/pkg-config-static"
-cat > "$static_pkg_config" <<'PKG_CONFIG_WRAPPER'
-#!/usr/bin/env bash
-set -euo pipefail
-output="$("$REAL_PKG_CONFIG" "$@")"
-output="${output//-lvorbisenc/$VORBISENC_ARCHIVE}"
-output="${output//-lvorbis/$VORBIS_ARCHIVE}"
-output="${output//-lmp3lame/$LAME_ARCHIVE}"
-output="${output//-logg/$OGG_ARCHIVE}"
-printf '%s\n' "$output"
-PKG_CONFIG_WRAPPER
-chmod 0755 "$static_pkg_config"
-export REAL_PKG_CONFIG="$real_pkg_config"
-export LAME_ARCHIVE="$lame_prefix/lib/libmp3lame.a"
-export OGG_ARCHIVE="$ogg_prefix/lib/libogg.a"
-export VORBIS_ARCHIVE="$vorbis_prefix/lib/libvorbis.a"
-export VORBISENC_ARCHIVE="$vorbis_prefix/lib/libvorbisenc.a"
-test -f "$LAME_ARCHIVE"
-test -f "$OGG_ARCHIVE"
-test -f "$VORBIS_ARCHIVE"
-test -f "$VORBISENC_ARCHIVE"
+# emit -l flags, which otherwise let Apple's linker select Homebrew dylibs.
+# Put only the required archives in the first search path and explicitly use
+# Apple's per-directory search order. This preserves FFmpeg's native
+# pkg-config probes while producing standalone binaries.
+static_lib_dir="$work_dir/static-libs"
+mkdir -p "$static_lib_dir"
+static_archives=(
+  "$lame_prefix/lib/libmp3lame.a"
+  "$mpg123_prefix/lib/libmpg123.a"
+  "$ogg_prefix/lib/libogg.a"
+  "$vorbis_prefix/lib/libvorbis.a"
+  "$vorbis_prefix/lib/libvorbisenc.a"
+)
+for static_archive in "${static_archives[@]}"; do
+  test -f "$static_archive"
+  ln -s "$static_archive" "$static_lib_dir/$(basename "$static_archive")"
+done
 
 cd "$source_dir"
 PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_prefix/lib/pkgconfig" \
@@ -82,9 +74,9 @@ PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_pr
   --enable-ffprobe \
   --enable-libmp3lame \
   --enable-libvorbis \
-  --pkg-config="$static_pkg_config" \
   --pkg-config-flags="--static" \
-  --extra-cflags="-I$lame_prefix/include -I$ogg_prefix/include -I$vorbis_prefix/include"
+  --extra-cflags="-I$lame_prefix/include -I$ogg_prefix/include -I$vorbis_prefix/include" \
+  --extra-ldflags="-Wl,-search_paths_first -L$static_lib_dir"
 
 make -j"$(sysctl -n hw.ncpu)"
 make install
@@ -110,12 +102,16 @@ FFmpeg commit: ${source_commit}
 Source archive: ${source_url}
 Source archive SHA-256: ${source_sha256}
 Build script: https://github.com/TonyNa-code/MusicDrop/blob/${musicdrop_revision}/tools/build_ffmpeg_macos.sh
+Dependency formulas: $(brew list --versions lame mpg123 libogg libvorbis | tr '\n' ';')
 Configuration and runtime dependencies are recorded beside this file.
 SOURCE_PROVENANCE
 
 mkdir -p "$output_dir/licenses"
 cp COPYING.LGPLv2.1 COPYING.LGPLv3 "$output_dir/licenses/"
 cp "$lame_prefix/share/doc/lame/COPYING" "$output_dir/licenses/LAME-COPYING.txt"
+mpg123_license="$(find "$mpg123_prefix" -type f \( -name COPYING -o -name LICENSE \) -print -quit)"
+test -n "$mpg123_license"
+cp "$mpg123_license" "$output_dir/licenses/MPG123-COPYING.txt"
 cp "$ogg_prefix/share/doc/libogg/COPYING" "$output_dir/licenses/LIBOGG-COPYING.txt"
 cp "$vorbis_prefix/share/doc/libvorbis/COPYING" "$output_dir/licenses/LIBVORBIS-COPYING.txt"
 shasum -a 256 "$output_dir/bin/ffmpeg" "$output_dir/bin/ffprobe" > "$output_dir/SHA256SUMS.txt"

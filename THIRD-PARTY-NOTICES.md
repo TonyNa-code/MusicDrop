@@ -37,7 +37,7 @@ Upstream: <https://ffmpeg.org/> · build scripts: <https://github.com/BtbN/FFmpe
 
 Binary packages that bundle FFmpeg include its `LICENSE.txt`. Users may replace the separate FFmpeg folder with a compatible build, subject to that build's license.
 
-macOS packages build the same FFmpeg commit from the pinned source archive instead of using BtbN Windows binaries. The macOS configuration disables GPL and nonfree, statically enables LAME (LGPL), libogg and libvorbis (BSD-style licenses), records the build configuration and includes the corresponding license files. See `docs/FFMPEG.md` and `tools/build_ffmpeg_macos.sh`.
+macOS packages build the same FFmpeg commit from the pinned source archive instead of using BtbN Windows binaries. The macOS configuration disables GPL and nonfree, statically enables LAME and mpg123 (LGPL), plus libogg and libvorbis (BSD-style licenses), records the build configuration and includes the corresponding license files. See `docs/FFMPEG.md` and `tools/build_ffmpeg_macos.sh`.
 
 ## Optional qqmusic_decrypt compatibility component
 
