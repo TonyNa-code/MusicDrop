@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rid="${1:?usage: package_macos.sh <osx-arm64|osx-x64> <ffmpeg-prefix> <dist-directory>}"
+rid="${1:?usage: package_macos.sh <osx-arm64|osx-x64> <ffmpeg-prefix> <dist-directory> <version>}"
 ffmpeg_prefix="${2:?missing FFmpeg prefix}"
 dist_dir="${3:?missing distribution directory}"
+version="${4:?missing package version}"
 case "$rid" in osx-arm64|osx-x64) ;; *) echo "Unsupported RID: $rid" >&2; exit 2 ;; esac
+if [[ ! "$version" =~ ^v[0-9A-Za-z.-]+$ ]]; then
+  echo "Unsupported version: $version" >&2
+  exit 2
+fi
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$dist_dir"
 dist_dir="$(cd "$dist_dir" && pwd)"
 publish_root="$dist_dir/publish-$rid"
 app="$dist_dir/MusicDrop.app"
-archive="$dist_dir/MusicDrop-3.1.0-preview.1-${rid}.zip"
+archive="$dist_dir/MusicDrop-${version}-${rid}.zip"
 
 dotnet publish "$repo_root/MusicDrop.Desktop/MusicDrop.Desktop.csproj" \
   -c Release -r "$rid" --self-contained true -o "$publish_root/desktop"
@@ -26,11 +31,22 @@ cp "$publish_root/cli/musicdrop" "$app/Contents/Resources/musicdrop-cli"
 cp "$ffmpeg_prefix/bin/ffmpeg" "$ffmpeg_prefix/bin/ffprobe" "$app/Contents/Resources/ffmpeg/bin/"
 cp -R "$ffmpeg_prefix/licenses/." "$app/Contents/Resources/ffmpeg/licenses/"
 cp "$ffmpeg_prefix/FFMPEG-VERSION.txt" "$ffmpeg_prefix/FFMPEG-BUILDCONF.txt" \
+  "$ffmpeg_prefix/FFMPEG-DEPENDENCIES.txt" "$ffmpeg_prefix/FFMPEG-SOURCE.txt" \
   "$ffmpeg_prefix/SHA256SUMS.txt" "$app/Contents/Resources/ffmpeg/"
 cp "$repo_root/tools/macos/Info.plist" "$app/Contents/Info.plist"
 cp "$repo_root/README.md" "$repo_root/README.zh-CN.md" "$repo_root/LICENSE" \
-  "$repo_root/THIRD-PARTY-NOTICES.md" "$repo_root/PRIVACY.md" \
+  "$repo_root/THIRD-PARTY-NOTICES.md" "$repo_root/TRADEMARKS.md" "$repo_root/PRIVACY.md" \
   "$app/Contents/SharedSupport/"
+
+dotnet_root="${DOTNET_ROOT:-}"
+if [[ -z "$dotnet_root" || ! -f "$dotnet_root/LICENSE.txt" ]]; then
+  dotnet_root="$(cd "$(dirname "$(command -v dotnet)")" && pwd)"
+fi
+test -f "$dotnet_root/LICENSE.txt"
+test -f "$dotnet_root/ThirdPartyNotices.txt"
+cp "$dotnet_root/LICENSE.txt" "$app/Contents/SharedSupport/DOTNET-LICENSE.txt"
+cp "$dotnet_root/ThirdPartyNotices.txt" \
+  "$app/Contents/SharedSupport/DOTNET-THIRD-PARTY-NOTICES.txt"
 
 iconset="$publish_root/MusicDrop.iconset"
 mkdir -p "$iconset"
