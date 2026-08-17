@@ -66,6 +66,7 @@ if ! PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorb
   --disable-doc \
   --disable-ffplay \
   --disable-network \
+  --disable-autodetect \
   --disable-shared \
   --enable-static \
   --disable-gpl \

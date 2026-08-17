@@ -19,7 +19,7 @@ The macOS release workflow does not copy an opaque third-party binary. It downlo
 
 The script:
 
-- disables GPL, nonfree, network access, documentation and FFplay;
+- disables GPL, nonfree, network access, documentation, FFplay and automatic external-library detection;
 - enables static LAME, mpg123 and Vorbis dependencies with compatible licenses;
 - rejects unexpected Homebrew dylib references;
 - verifies FLAC, PCM, MP3 and Vorbis encoders;
