@@ -2,9 +2,14 @@
 set -euo pipefail
 
 output_dir="${1:?usage: build_ffmpeg_macos.sh <output-directory>}"
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 source_commit="9b6c8969e0"
 source_sha256="7e779215eae16ad7e93ddad59bd82822bd3d34e4dc61f9996f9481b2c0605bc3"
 source_url="https://github.com/FFmpeg/FFmpeg/archive/${source_commit}.tar.gz"
+lame_license_source_url="https://downloads.sourceforge.net/project/lame/lame/4.0/lame-4.0.tar.gz"
+lame_license_source_sha256="3df5124d5ad3a98312ffd7ba6a9b36230e4f8a3e66d3ce0f425e336c32d216eb"
+ogg_license_source_sha256="83e6704730683d004d20e21b8f7f55dcb3383cdf84c0daedf30bde175f774638"
+vorbis_license_source_sha256="b33cc4934322bcbf6efcbacf49e3ca01aadbea4114ec9589d1b1e9d20f72954b"
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/musicdrop-ffmpeg.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
 
@@ -109,15 +114,15 @@ Source archive: ${source_url}
 Source archive SHA-256: ${source_sha256}
 Build script: https://github.com/TonyNa-code/MusicDrop/blob/${musicdrop_revision}/tools/build_ffmpeg_macos.sh
 Dependency formulas: $(brew list --versions lame mpg123 libogg libvorbis | tr '\n' ';')
+LAME license source: ${lame_license_source_url}
+LAME license source SHA-256: ${lame_license_source_sha256}
+libogg 1.3.6 source SHA-256: ${ogg_license_source_sha256}
+libvorbis 1.3.7 source SHA-256: ${vorbis_license_source_sha256}
 Configuration and runtime dependencies are recorded beside this file.
 SOURCE_PROVENANCE
 
 mkdir -p "$output_dir/licenses"
 cp COPYING.LGPLv2.1 COPYING.LGPLv3 "$output_dir/licenses/"
-cp "$lame_prefix/share/doc/lame/COPYING" "$output_dir/licenses/LAME-COPYING.txt"
-mpg123_license="$(find "$mpg123_prefix" -type f \( -name COPYING -o -name LICENSE \) -print -quit)"
-test -n "$mpg123_license"
-cp "$mpg123_license" "$output_dir/licenses/MPG123-COPYING.txt"
-cp "$ogg_prefix/share/doc/libogg/COPYING" "$output_dir/licenses/LIBOGG-COPYING.txt"
-cp "$vorbis_prefix/share/doc/libvorbis/COPYING" "$output_dir/licenses/LIBVORBIS-COPYING.txt"
+cp "$repo_root/third_party/licenses/"*.txt "$output_dir/licenses/"
+cp COPYING.LGPLv2.1 "$output_dir/licenses/MPG123-COPYING.LGPLv2.1.txt"
 shasum -a 256 "$output_dir/bin/ffmpeg" "$output_dir/bin/ffprobe" > "$output_dir/SHA256SUMS.txt"

@@ -26,4 +26,6 @@ The script:
 - records `-version`, `-buildconf` and SHA-256 outputs;
 - copies FFmpeg, LAME, mpg123, libogg and libvorbis license texts into the app bundle.
 
+Homebrew bottles do not consistently install their `COPYING` files. The repository therefore carries the complete license texts extracted from the formula-pinned LAME 4.0, libogg 1.3.6 and libvorbis 1.3.7 source archives after verifying SHA-256 `3df512…16eb`, `83e670…4638` and `b33cc4…954b`; packaging never silently omits them.
+
 See `tools/build_ffmpeg_macos.sh` and [macOS packaging](MACOS.md). A source-built LGPL configuration does not replace the need to comply with LGPL source/relinking obligations when distributing binaries.
