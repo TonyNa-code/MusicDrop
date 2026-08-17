@@ -33,6 +33,8 @@ jobs:
           dotnet-version: 10.0.301
       - name: Build pinned LGPL FFmpeg
         run: bash tools/build_ffmpeg_macos.sh "$RUNNER_TEMP/musicdrop-ffmpeg"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Build and package app
         run: bash tools/package_macos.sh "${{ matrix.rid }}" "$RUNNER_TEMP/musicdrop-ffmpeg" "$RUNNER_TEMP/dist" "$PACKAGE_VERSION"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

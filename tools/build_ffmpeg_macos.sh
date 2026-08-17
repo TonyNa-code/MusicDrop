@@ -13,7 +13,22 @@ output_dir="$(cd "$output_dir" && pwd)"
 archive="$work_dir/ffmpeg.tar.gz"
 
 brew install pkg-config nasm lame libogg libvorbis
-curl --fail --location --retry 3 --output "$archive" "$source_url"
+curl_args=(
+  --fail
+  --location
+  --retry 10
+  --retry-all-errors
+  --retry-delay 5
+  --retry-max-time 900
+  --connect-timeout 30
+  --max-time 900
+  --user-agent "MusicDrop-release-builder"
+  --output "$archive"
+)
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  curl_args+=(--header "Authorization: Bearer ${GITHUB_TOKEN}")
+fi
+curl "${curl_args[@]}" "$source_url"
 printf '%s  %s\n' "$source_sha256" "$archive" | shasum -a 256 --check
 tar -xzf "$archive" -C "$work_dir"
 source_dir="$(find "$work_dir" -mindepth 1 -maxdepth 1 -type d -name 'FFmpeg-*' -print -quit)"
@@ -22,6 +37,35 @@ test -n "$source_dir"
 lame_prefix="$(brew --prefix lame)"
 ogg_prefix="$(brew --prefix libogg)"
 vorbis_prefix="$(brew --prefix libvorbis)"
+
+# Homebrew installs both static archives and dylibs. FFmpeg's pkg-config checks
+# normally emit -l flags, which let Apple's linker prefer the dylibs even when
+# pkg-config is asked for static dependencies. Keep the verified Homebrew
+# headers, but rewrite the four external audio libraries to their exact .a
+# files so the resulting standalone executables remain portable.
+real_pkg_config="$(command -v pkg-config)"
+static_pkg_config="$work_dir/pkg-config-static"
+cat > "$static_pkg_config" <<'PKG_CONFIG_WRAPPER'
+#!/usr/bin/env bash
+set -euo pipefail
+output="$("$REAL_PKG_CONFIG" "$@")"
+output="${output//-lvorbisenc/$VORBISENC_ARCHIVE}"
+output="${output//-lvorbis/$VORBIS_ARCHIVE}"
+output="${output//-lmp3lame/$LAME_ARCHIVE}"
+output="${output//-logg/$OGG_ARCHIVE}"
+printf '%s\n' "$output"
+PKG_CONFIG_WRAPPER
+chmod 0755 "$static_pkg_config"
+export REAL_PKG_CONFIG="$real_pkg_config"
+export LAME_ARCHIVE="$lame_prefix/lib/libmp3lame.a"
+export OGG_ARCHIVE="$ogg_prefix/lib/libogg.a"
+export VORBIS_ARCHIVE="$vorbis_prefix/lib/libvorbis.a"
+export VORBISENC_ARCHIVE="$vorbis_prefix/lib/libvorbisenc.a"
+test -f "$LAME_ARCHIVE"
+test -f "$OGG_ARCHIVE"
+test -f "$VORBIS_ARCHIVE"
+test -f "$VORBISENC_ARCHIVE"
+
 cd "$source_dir"
 PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_prefix/lib/pkgconfig" \
 ./configure \
@@ -38,9 +82,9 @@ PKG_CONFIG_PATH="$lame_prefix/lib/pkgconfig:$ogg_prefix/lib/pkgconfig:$vorbis_pr
   --enable-ffprobe \
   --enable-libmp3lame \
   --enable-libvorbis \
+  --pkg-config="$static_pkg_config" \
   --pkg-config-flags="--static" \
-  --extra-cflags="-I$lame_prefix/include -I$ogg_prefix/include -I$vorbis_prefix/include" \
-  --extra-ldflags="-L$lame_prefix/lib -L$ogg_prefix/lib -L$vorbis_prefix/lib"
+  --extra-cflags="-I$lame_prefix/include -I$ogg_prefix/include -I$vorbis_prefix/include"
 
 make -j"$(sysctl -n hw.ncpu)"
 make install
@@ -53,10 +97,21 @@ make install
 "$output_dir/bin/ffmpeg" -hide_banner -encoders | grep -Eq '[[:space:]]flac[[:space:]]'
 "$output_dir/bin/ffmpeg" -hide_banner -encoders | grep -Eq 'pcm_s(16|24|32)le'
 
-if otool -L "$output_dir/bin/ffmpeg" "$output_dir/bin/ffprobe" | grep -Eq '/(opt/homebrew|usr/local/opt)/'; then
+dependencies_file="$output_dir/FFMPEG-DEPENDENCIES.txt"
+otool -L "$output_dir/bin/ffmpeg" "$output_dir/bin/ffprobe" | tee "$dependencies_file"
+if grep -Eq '/(opt/homebrew|usr/local/opt)/' "$dependencies_file"; then
   echo "FFmpeg unexpectedly links to Homebrew dylibs; refusing a non-portable package." >&2
   exit 1
 fi
+
+musicdrop_revision="${GITHUB_SHA:-main}"
+cat > "$output_dir/FFMPEG-SOURCE.txt" <<SOURCE_PROVENANCE
+FFmpeg commit: ${source_commit}
+Source archive: ${source_url}
+Source archive SHA-256: ${source_sha256}
+Build script: https://github.com/TonyNa-code/MusicDrop/blob/${musicdrop_revision}/tools/build_ffmpeg_macos.sh
+Configuration and runtime dependencies are recorded beside this file.
+SOURCE_PROVENANCE
 
 mkdir -p "$output_dir/licenses"
 cp COPYING.LGPLv2.1 COPYING.LGPLv3 "$output_dir/licenses/"

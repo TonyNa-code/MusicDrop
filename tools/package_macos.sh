@@ -31,6 +31,7 @@ cp "$publish_root/cli/musicdrop" "$app/Contents/Resources/musicdrop-cli"
 cp "$ffmpeg_prefix/bin/ffmpeg" "$ffmpeg_prefix/bin/ffprobe" "$app/Contents/Resources/ffmpeg/bin/"
 cp -R "$ffmpeg_prefix/licenses/." "$app/Contents/Resources/ffmpeg/licenses/"
 cp "$ffmpeg_prefix/FFMPEG-VERSION.txt" "$ffmpeg_prefix/FFMPEG-BUILDCONF.txt" \
+  "$ffmpeg_prefix/FFMPEG-DEPENDENCIES.txt" "$ffmpeg_prefix/FFMPEG-SOURCE.txt" \
   "$ffmpeg_prefix/SHA256SUMS.txt" "$app/Contents/Resources/ffmpeg/"
 cp "$repo_root/tools/macos/Info.plist" "$app/Contents/Info.plist"
 cp "$repo_root/README.md" "$repo_root/README.zh-CN.md" "$repo_root/LICENSE" \
