@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible MusicDrop problem without private files or keys
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not upload copyrighted music, platform databases, EKeys, buyer licenses or account information.
+  - type: input
+    id: version
+    attributes:
+      label: MusicDrop version
+      placeholder: 3.1.0-preview.1
+    validations:
+      required: true
+  - type: dropdown
+    id: input
+    attributes:
+      label: Input family
+      options: [Standard audio, QQ/QMC, QQ iOS TM, NCM, KWM, KGM v3, KGM v5, Xiami XM, Ximalaya X2M/X3M, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Use a synthetic or lawfully redistributable fixture where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Actual and expected result
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed personal data, credentials, keys, licenses and private media.
+          required: true

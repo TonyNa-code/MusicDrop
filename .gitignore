@@ -1,0 +1,46 @@
+# Build output
+**/bin/
+**/obj/
+artifacts/
+publish/
+TestResults/
+
+# Local settings, caches and user material
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+*.partial
+.appdata/
+.build-appdata/
+.profile/
+.nuget-packages/
+.dotnet-cli/
+
+# Never commit seller secrets or buyer data
+seller-private/
+*.private.pem
+buyer-license.json
+buyer-license-*.json
+
+# Never commit music, platform databases or keys
+*.mflac
+*.mgg
+*.qmc*
+*.ncm
+*.kgm
+*.kgma
+*.kgg
+*.vpr
+*.kwm
+*.dpapi.json
+KGMusicV3.db*
+player_process_db*
+*ekey*.json
+*ekey*.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini

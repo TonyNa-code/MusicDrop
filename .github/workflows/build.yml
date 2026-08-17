@@ -1,0 +1,48 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore MusicDrop.slnx --configfile NuGet.Config
+      - name: Build
+        run: dotnet build MusicDrop.slnx -c Release --no-restore
+      - name: Package vulnerability audit
+        run: dotnet list MusicDrop3/MFlacDrop.csproj package --vulnerable --include-transitive
+      - name: Portable package vulnerability audit
+        run: dotnet list MusicDrop.Desktop/MusicDrop.Desktop.csproj package --vulnerable --include-transitive
+      - name: Cross-platform core harness
+        run: dotnet run --project MusicDrop.Core.Harness/MusicDrop.Core.Harness.csproj -c Release --no-build
+      - name: Portable CLI smoke
+        run: dotnet run --project MusicDrop3.Portable.Cli/MusicDrop3.Portable.Cli.csproj -c Release --no-build -- --version
+      - name: CLI smoke
+        run: dotnet run --project MusicDrop3.Cli/MusicDrop3.Cli.csproj -c Release --no-build -- --version
+      - name: Community license smoke
+        run: dotnet run --project MusicDrop3.Cli/MusicDrop3.Cli.csproj -c Release --no-build -- --license-status
+      - name: Publish GUI
+        run: dotnet publish MusicDrop3/MFlacDrop.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/gui
+      - name: Publish CLI
+        run: dotnet publish MusicDrop3.Cli/MusicDrop3.Cli.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/cli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MusicDrop-community-win-x64-slim
+          path: |
+            artifacts/gui/MusicDrop3.exe
+            artifacts/cli/MusicDrop3.Cli.exe
+            LICENSE
+            THIRD-PARTY-NOTICES.md
+            TRADEMARKS.md
+            PRIVACY.md

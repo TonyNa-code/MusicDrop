@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>MusicDrop3</AssemblyName>
+    <RootNamespace>MFlacDrop</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\musicdrop.ico</ApplicationIcon>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Version>3.1.0-preview.1</Version>
+    <DefineConstants Condition="'$(MusicDropRetailBuild)' == 'true'">$(DefineConstants);MUSICDROP_RETAIL</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MultiPlatform\**\*.cs" />
+    <Compile Remove="OfflineQmc\**\*.cs" />
+    <ProjectReference Include="..\MusicDrop.Core\MusicDrop.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\musicdrop-logo-1024.png" />
+  </ItemGroup>
+</Project>

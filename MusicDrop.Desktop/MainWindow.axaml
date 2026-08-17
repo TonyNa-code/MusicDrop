@@ -1,0 +1,129 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MusicDrop.Desktop.MainWindow"
+        Title="MusicDrop™ 3.1"
+        Width="1080" Height="760" MinWidth="880" MinHeight="620"
+        Background="#080D18"
+        WindowStartupLocation="CenterScreen">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="30">
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,20">
+      <Border Width="72" Height="72" CornerRadius="20" Background="#121B30" Padding="10">
+        <Image Source="avares://MusicDrop.Desktop/Assets/musicdrop-logo-1024.png" Stretch="Uniform" />
+      </Border>
+      <StackPanel Grid.Column="1" Margin="18,6,0,0">
+        <TextBlock Text="MusicDrop™" FontSize="28" FontWeight="Bold" Foreground="#F7F9FF" />
+        <TextBlock x:Name="HeroSubtitle" Text="把复杂留给核心，把转换留给一次拖放。"
+                   FontSize="14" Foreground="#8FA2C8" Margin="0,5,0,0" />
+      </StackPanel>
+      <Button Grid.Column="2" x:Name="LanguageButton" Classes="ghost" Content="EN"
+              VerticalAlignment="Top" Click="OnLanguageClick" />
+    </Grid>
+
+    <Border Grid.Row="1" Background="#101827" CornerRadius="16" Padding="18" Margin="0,0,0,16">
+      <Grid ColumnDefinitions="*,12,210,12,Auto">
+        <StackPanel>
+          <TextBlock x:Name="OutputLabel" Text="输出目录" Foreground="#8FA2C8" FontSize="12" Margin="2,0,0,6" />
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBox x:Name="OutputBox" Watermark="选择输出目录" />
+            <Button Grid.Column="1" Classes="ghost" Content="…" Margin="8,0,0,0" Click="OnChooseOutputClick" />
+          </Grid>
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock x:Name="FormatLabel" Text="输出格式" Foreground="#8FA2C8" FontSize="12" Margin="2,0,0,6" />
+          <ComboBox x:Name="FormatBox" SelectedIndex="0">
+            <ComboBoxItem Content="原始格式 / Original" Tag="ORIGINAL" />
+            <ComboBoxItem Content="FLAC · 无损" Tag="FLAC" />
+            <ComboBoxItem Content="WAV · PCM 无损" Tag="WAV" />
+            <ComboBoxItem Content="MP3 · V0" Tag="MP3" />
+            <ComboBoxItem Content="OGG · q6" Tag="OGG" />
+          </ComboBox>
+        </StackPanel>
+        <Button Grid.Column="4" x:Name="StartButton" Classes="primary" Content="开始转换"
+                VerticalAlignment="Bottom" Click="OnStartClick" />
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="2*,16,*">
+      <Border x:Name="DropPanel" Grid.Column="0" Background="#0D1524" BorderBrush="#2A3A5E"
+              BorderThickness="1" CornerRadius="18" Padding="18">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <Grid ColumnDefinitions="*,Auto,Auto">
+            <StackPanel>
+              <TextBlock x:Name="QueueTitle" Text="转换队列" Foreground="#F2F5FF" FontSize="17" FontWeight="SemiBold" />
+              <TextBlock x:Name="DropHint" Text="拖入文件或文件夹，也可以点击添加"
+                         Foreground="#7186AD" FontSize="12" Margin="0,4,0,0" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="ghost" x:Name="AddButton" Content="＋ 添加" Margin="8,0"
+                    Click="OnAddClick" />
+            <Button Grid.Column="2" Classes="ghost" x:Name="ClearButton" Content="清空" Click="OnClearClick" />
+          </Grid>
+          <ListBox Grid.Row="1" x:Name="QueueList" ItemsSource="{Binding Queue}" Margin="0,14,0,12"
+                   Background="Transparent" BorderThickness="0">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Border Background="#121D31" CornerRadius="10" Padding="12" Margin="0,0,0,8">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel>
+                      <TextBlock Text="{Binding Name}" Foreground="#EAF0FF" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding Directory}" Foreground="#62779E" FontSize="11"
+                                 TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding Size}" Foreground="#8FA2C8"
+                               VerticalAlignment="Center" Margin="16,0,0,0" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <TextBlock Grid.Row="2" x:Name="SafetyNote"
+                     Text="本地处理 · 不上传 · 不删除源文件 · 正式输出前严格预检"
+                     Foreground="#5F7398" FontSize="11" HorizontalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="14" Margin="0,0,4,0">
+        <Border Background="#101827" CornerRadius="16" Padding="18">
+          <StackPanel>
+            <TextBlock x:Name="EngineTitle" Text="转换引擎" FontWeight="SemiBold" Foreground="#F2F5FF" />
+            <TextBlock x:Name="EngineStatus" Text="正在检查…" Foreground="#8FA2C8" Margin="0,8,0,0" TextWrapping="Wrap" />
+            <ProgressBar x:Name="Progress" Height="6" Margin="0,14,0,0" Minimum="0" Maximum="100" Value="0" />
+            <Button x:Name="CancelButton" Classes="ghost" Content="取消" IsVisible="False"
+                    HorizontalAlignment="Left" Margin="0,12,0,0" Click="OnCancelClick" />
+          </StackPanel>
+        </Border>
+
+        <Expander x:Name="AdvancedExpander" Header="本地密钥兼容（可选）" Background="#101827"
+                  Padding="14" CornerRadius="16">
+          <StackPanel Spacing="10" Margin="0,10,0,0">
+            <TextBlock x:Name="QmcKeyLabel" Text="QMC EKey 映射文件" Foreground="#8FA2C8" FontSize="12" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox x:Name="QmcKeyBox" Watermark="JSON / TXT" />
+              <Button Grid.Column="1" Classes="ghost" Content="…" Margin="8,0,0,0" Tag="qmc" Click="OnChooseKeySourceClick" />
+            </Grid>
+            <TextBlock x:Name="KugouDbLabel" Text="酷狗 KGMusicV3.db" Foreground="#8FA2C8" FontSize="12" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox x:Name="KugouDbBox" Watermark="KGM v5 本地密钥库" />
+              <Button Grid.Column="1" Classes="ghost" Content="…" Margin="8,0,0,0" Tag="kugou" Click="OnChooseKeySourceClick" />
+            </Grid>
+          </StackPanel>
+        </Expander>
+
+        <Border Background="#101827" CornerRadius="16" Padding="18">
+          <StackPanel>
+            <TextBlock x:Name="CoverageTitle" Text="离线覆盖" FontWeight="SemiBold" Foreground="#F2F5FF" />
+            <TextBlock Text="QMC · NCM · KWM · KGM v3/v5" Foreground="#8FA2C8" Margin="0,8,0,0" />
+            <TextBlock Text="TM · Xiami XM · Ximalaya X2M/X3M" Foreground="#8FA2C8" Margin="0,4,0,0" />
+            <TextBlock x:Name="BoundaryText" Text="缺少文件专属密钥时会准确停止，不伪装成功。"
+                       Foreground="#697FA7" FontSize="11" Margin="0,9,0,0" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+      </ScrollViewer>
+    </Grid>
+
+    <TextBlock Grid.Row="3" x:Name="FooterText" Text="MusicDrop™ 3.1 Preview · Community Edition"
+               Foreground="#435677" FontSize="11" HorizontalAlignment="Right" Margin="0,15,2,0" />
+  </Grid>
+</Window>

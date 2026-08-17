@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">MusicDrop</title>
+  <desc id="desc">A local-first verified batch audio converter</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050a24"/>
+      <stop offset="0.55" stop-color="#07194b"/>
+      <stop offset="1" stop-color="#0b3270"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#48f0ff"/>
+      <stop offset="0.48" stop-color="#0b8cff"/>
+      <stop offset="1" stop-color="#5956ff"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#63ffd2"/>
+      <stop offset="1" stop-color="#0bb7ff"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#0ddcff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#0ddcff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000820" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="420" rx="32" fill="url(#bg)"/>
+  <circle cx="215" cy="210" r="230" fill="url(#glow)"/>
+  <circle cx="1110" cy="62" r="190" fill="url(#glow)" opacity="0.55"/>
+  <path d="M0 337 C145 287 260 390 410 331 S706 282 864 334 1100 388 1280 318 V420 H0Z" fill="#07112f" opacity="0.82"/>
+  <path d="M0 348 C156 301 274 401 425 342 S709 295 866 347 1098 399 1280 331" fill="none" stroke="#0b8cff" stroke-opacity="0.24" stroke-width="2"/>
+
+  <g transform="translate(78 46)" filter="url(#shadow)">
+    <path d="M157 0 C126 50 45 133 45 218 C45 291 99 332 157 332 C215 332 269 291 269 218 C269 133 188 50 157 0Z" fill="url(#drop)"/>
+    <path d="M157 27 C139 68 83 136 83 211 C83 256 112 289 148 296 C111 266 116 214 136 181 C158 143 170 83 157 27Z" fill="#78f6ff" opacity="0.52"/>
+    <path d="M95 221 h18 v40 H95z M124 186 h18 v75 h-18z M153 153 h18 v108 h-18z M182 181 h18 v80 h-18z M211 211 h18 v50 h-18z" rx="9" fill="url(#wave)"/>
+    <circle cx="157" cy="252" r="34" fill="#07194b"/>
+    <path d="M186 143 v110" stroke="#07194b" stroke-width="15" stroke-linecap="round"/>
+    <path d="M186 145 q31 10 34 36" fill="none" stroke="#07194b" stroke-width="15" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(420 82)">
+    <text x="0" y="82" fill="#ffffff" font-family="Segoe UI,Arial,sans-serif" font-size="76" font-weight="750" letter-spacing="-2">MusicDrop</text>
+    <text x="4" y="132" fill="#70e9ff" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="600" letter-spacing="3">DROP · VERIFY · CONVERT</text>
+    <text x="4" y="188" fill="#d6e9ff" font-family="Segoe UI,Arial,sans-serif" font-size="26">A local-first verified batch audio converter</text>
+    <g transform="translate(4 226)" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="650" fill="#dffaff">
+      <g><rect width="152" height="38" rx="19" fill="#0bb7ff" fill-opacity="0.17" stroke="#20d9ff" stroke-opacity="0.55"/><text x="76" y="25" text-anchor="middle">LOCAL-FIRST</text></g>
+      <g transform="translate(166)"><rect width="130" height="38" rx="19" fill="#0bb7ff" fill-opacity="0.17" stroke="#20d9ff" stroke-opacity="0.55"/><text x="65" y="25" text-anchor="middle">BATCH</text></g>
+      <g transform="translate(310)"><rect width="144" height="38" rx="19" fill="#0bb7ff" fill-opacity="0.17" stroke="#20d9ff" stroke-opacity="0.55"/><text x="72" y="25" text-anchor="middle">VERIFIED</text></g>
+    </g>
+    <text x="4" y="319" fill="#8ba9d4" font-family="Consolas,monospace" font-size="16">QMC · NCM · KWM · KGM · XM · X2M/X3M</text>
+  </g>
+</svg>

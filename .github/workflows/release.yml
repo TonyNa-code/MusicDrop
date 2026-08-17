@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore MusicDrop.slnx --configfile NuGet.Config
+      - run: dotnet publish MusicDrop3/MFlacDrop.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/gui
+      - run: dotnet publish MusicDrop3.Cli/MusicDrop3.Cli.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/cli
+      - name: Assemble slim archive
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path package | Out-Null
+          Copy-Item publish/gui/MusicDrop3.exe package/
+          Copy-Item publish/cli/MusicDrop3.Cli.exe package/
+          Copy-Item README.md,LICENSE,THIRD-PARTY-NOTICES.md,TRADEMARKS.md,PRIVACY.md package/
+          Compress-Archive -Path package/* -DestinationPath MusicDrop-${{ github.ref_name }}-Slim-Windows-x64.zip
+          (Get-FileHash MusicDrop-${{ github.ref_name }}-Slim-Windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant() |
+            Set-Content MusicDrop-${{ github.ref_name }}-Slim-Windows-x64.zip.sha256.txt -Encoding ascii
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            MusicDrop-*.zip
+            MusicDrop-*.sha256.txt
+          generate_release_notes: true

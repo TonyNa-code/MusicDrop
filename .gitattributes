@@ -1,0 +1,10 @@
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.plist text eol=lf
+*.axaml text eol=lf
+*.cs text eol=lf
+*.md text eol=lf
+*.bin binary
+*.png binary
+*.ico binary

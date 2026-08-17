@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MusicDrop.Core/MusicDrop.Core.csproj" />
+  <Project Path="MusicDrop3.Portable.Cli/MusicDrop3.Portable.Cli.csproj" />
+  <Project Path="MusicDrop.Desktop/MusicDrop.Desktop.csproj" />
+  <Project Path="MusicDrop.Core.Harness/MusicDrop.Core.Harness.csproj" />
+</Solution>

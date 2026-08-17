@@ -1,0 +1,26 @@
+name: portable
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore MusicDrop.Portable.slnx --configfile NuGet.Config
+      - run: dotnet build MusicDrop.Portable.slnx -c Release --no-restore
+      - run: dotnet run --project MusicDrop.Core.Harness/MusicDrop.Core.Harness.csproj -c Release --no-build
+      - run: dotnet run --project MusicDrop3.Portable.Cli/MusicDrop3.Portable.Cli.csproj -c Release --no-build -- --version

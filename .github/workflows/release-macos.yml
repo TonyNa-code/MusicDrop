@@ -1,0 +1,54 @@
+name: release-macos
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            rid: osx-x64
+          - runner: macos-15
+            rid: osx-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build pinned LGPL FFmpeg
+        run: bash tools/build_ffmpeg_macos.sh "$RUNNER_TEMP/musicdrop-ffmpeg"
+      - name: Build and package app
+        run: bash tools/package_macos.sh "${{ matrix.rid }}" "$RUNNER_TEMP/musicdrop-ffmpeg" "$RUNNER_TEMP/dist"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MusicDrop-${{ matrix.rid }}
+          path: |
+            ${{ runner.temp }}/dist/MusicDrop-*.zip
+            ${{ runner.temp }}/dist/MusicDrop-*.sha256.txt
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MusicDrop-osx-*
+          path: release
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/MusicDrop-*.zip
+            release/MusicDrop-*.sha256.txt
+          generate_release_notes: true

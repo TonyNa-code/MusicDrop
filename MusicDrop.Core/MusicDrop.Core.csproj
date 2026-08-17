@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>MusicDrop.Core</AssemblyName>
+    <RootNamespace>MusicDrop.Core</RootNamespace>
+    <Version>3.1.0-preview.1</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Keep the audited format implementations in their original paths while
+         the project boundary makes the compiled core platform-neutral. -->
+    <Compile Include="..\MusicDrop3\MultiPlatform\**\*.cs" Link="Formats\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\MusicDrop3\OfflineQmc\**\*.cs" Link="Formats\Qmc\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\x2m_scramble_table.bin" />
+    <EmbeddedResource Include="Assets\x3m_scramble_table.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+  </ItemGroup>
+</Project>
